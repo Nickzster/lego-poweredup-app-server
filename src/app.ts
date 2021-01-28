@@ -1,14 +1,16 @@
 import express from "express";
-import Trains from "./lib/Trains";
-import { router as Controller } from "./routes/controller";
+import { TrainFactory } from "./lib/Trains";
+import { router as Individual } from "./routes/individual";
+import { router as Bulk } from "./routes/bulk";
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/", Controller);
+app.use("/individual", Individual);
+app.use("/bulk", Bulk);
 
-Trains.initalize().startScanning();
+TrainFactory.initalize().startScanning();
 
 const PORT = 5000 || process.env.PORT;
 
