@@ -9,17 +9,29 @@ const router = express.Router();
 router.post("/execute", async (req, res) => {
   let resp = new Response();
   try {
-    const { command, value } = req.body;
-    if (command !== "power" || command !== "brake")
+    const { command, value, trains } = req.body;
+    if (command !== "power" && command !== "brake" && command !== "direction")
       throw "This command cannot be applied in bulk!";
-    let connections = ConnectedTrains.initalize().getAllConnections();
+    let connections;
+    if (!!trains && Array.isArray(trains)) {
+      let allConnections = ConnectedTrains.initalize();
+      let selected = trains.map((train) => {
+        let connection = allConnections.getConnection(train);
+        if (connection) {
+          return connection;
+        }
+      });
+      connections = selected;
+    } else {
+      connections = ConnectedTrains.initalize().getAllConnections();
+    }
     connections.forEach((connection) =>
       Command.execute({
         command: { commandName: command, value },
         train: connection,
       })
     );
-    resp.succeed("Commands were applied to all connected trains!");
+    resp.succeed("Commands were applied to the specified trains!");
   } catch (err) {
     resp.failed(err);
   } finally {
