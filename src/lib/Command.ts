@@ -1,68 +1,71 @@
-import Train from "./Trains/Train";
+import { IDevice, IDeviceState } from "./Devices";
 
 interface IConstructor {
   command: ICommandSyntax;
-  train: Train;
+  device: IDevice;
 }
 
+type CommandName = "power" | "direction" | "brake" | "accelerate";
+
 interface ICommandSyntax {
-  commandName: "power" | "direction" | "brake";
-  value: number;
+  commandName: CommandName;
+  value: any;
 }
 
 class Command {
   private command: ICommandSyntax;
-  private train: Train;
+  private device: IDevice;
   private executed: boolean;
-  private scalePower(power: number) {
-    let scaled = power;
-    if (power > 100) scaled = 100;
-    if (power < -100) scaled = -100;
-    return scaled;
+  private newState: IDeviceState;
+  private commandToExecute(name: CommandName) {
+    return !this.executed && this.command.commandName === name;
+  }
+  private issueAccelerateCommand() {
+    if (this.commandToExecute("accelerate")) {
+      const startingPower = this.command.value.startingPower;
+      const targetPower = this.command.value.targetPower;
+      const time = this.command.value.time;
+      this.newState = this.device.accelerate(startingPower, targetPower, time);
+    }
+    return this;
   }
   private issuePowerCommand() {
-    if (!this.executed && this.command.commandName === "power") {
+    if (this.commandToExecute("power")) {
       this.executed = true;
-      let scaled = this.scalePower(this.command.value);
-      this.train.setPower(scaled);
+      this.newState = this.device.setPower(this.command.value);
     }
     return this;
   }
   private issueDirectionCommand() {
-    if (!this.executed && this.command.commandName === "direction") {
+    if (this.commandToExecute("direction")) {
       this.executed = true;
-      this.train.changeDirection();
+      this.newState = this.device.changeDirection();
     }
     return this;
   }
   private issueBrakeCommand() {
-    if (!this.executed && this.command.commandName === "brake") {
+    if (this.commandToExecute("brake")) {
       this.executed = true;
-      this.train.brake();
+      this.newState = this.device.brake();
     }
     return this;
   }
-  private finish() {
-    return this.executed;
-  }
   private constructor(args: IConstructor) {
-    const { command, train } = args;
-    const { commandName, value } = command;
-    this.train = train;
-    this.executed = false;
-    this.command = {
-      commandName,
-      value,
-    };
+    this.newState = null;
+    this.device = args.device;
+    this.command = args.command;
     return this;
   }
-
-  public static execute(args: IConstructor): boolean {
-    return new Command(args)
+  private getFinalState() {
+    return this.newState;
+  }
+  public static execute(args: IConstructor) {
+    new Command(args)
+      .issueAccelerateCommand()
+      .issueBrakeCommand()
       .issuePowerCommand()
       .issueDirectionCommand()
-      .issueBrakeCommand()
-      .finish();
+      .getFinalState();
   }
 }
 

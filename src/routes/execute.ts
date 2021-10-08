@@ -1,29 +1,26 @@
 import express from "express";
 import Command from "../lib/Command";
 import Response from "../lib/Response";
-import ConnectedTrains from "../lib/Trains";
+import ConnectedDevices from "../lib/ConnectedDevices";
 
 const router = express.Router();
 
-//BULK commands
 router.post("/execute", async (req, res) => {
   let resp = new Response();
   try {
-    const { command, value, trains } = req.body;
-    if (command !== "power" && command !== "brake" && command !== "direction")
-      throw "This command cannot be applied in bulk!";
+    const { command, value, devices } = req.body;
     let connections;
-    if (!!trains && Array.isArray(trains)) {
-      let allConnections = ConnectedTrains.initalize();
-      let selected = trains.map((train) => {
-        let connection = allConnections.getConnection(train);
+    if (!!devices && Array.isArray(devices)) {
+      let allConnections = ConnectedDevices.initalize();
+      let selected = devices.map((device) => {
+        let connection = allConnections.getConnection(device);
         if (connection) {
           return connection;
         }
       });
       connections = selected;
     } else {
-      connections = ConnectedTrains.initalize().getAllConnections();
+      connections = ConnectedDevices.initalize().getAllConnections();
     }
     connections.forEach((connection) =>
       Command.execute({
@@ -31,7 +28,7 @@ router.post("/execute", async (req, res) => {
         train: connection,
       })
     );
-    resp.succeed("Commands were applied to the specified trains!");
+    resp.succeed("Commands were applied to the specified devices!");
   } catch (err) {
     resp.failed(err);
   } finally {

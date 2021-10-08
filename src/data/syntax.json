@@ -1,0 +1,19 @@
+{
+  "TODO:": "Define Command Syntax Here.",
+  "accelerate": {
+    "syntax": {},
+    "examples": [{}]
+  },
+  "direction": {
+    "syntax": {},
+    "examples": [{}]
+  },
+  "power": {
+    "syntax": {},
+    "examples": [{}]
+  },
+  "brake": {
+    "syntax": {},
+    "examples": [{}]
+  }
+}

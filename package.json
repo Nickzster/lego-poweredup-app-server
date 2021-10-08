@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/app.ts"
+    "start": "nodemon src/app.ts",
+    "build": "tsc -p .",
+    "deploy": "tsc -p . && cp package.PROD.json build/package.json &&  scp -r build pi@10.0.0.237:~/apps/prod/trains/server && ssh pi@10.0.0.237 'cd /home/pi/apps/prod/trains/server/build ; yarn'"
   },
   "dependencies": {
     "@types/express": "^4.17.11",
@@ -12,6 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "node-poweredup": "^6.9.1",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "socket.io": "^3.1.1"
   }
 }
