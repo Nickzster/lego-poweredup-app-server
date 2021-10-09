@@ -1,6 +1,7 @@
 import express from "express";
-import { TrainFactory } from "./lib/Trains";
-import { router as Command } from "./routes/bulk";
+import DeviceListener from "./lib/PoweredUPAPI/DeviceListener";
+import { router as Execute } from "./routes";
+import { router as State } from "./routes/state";
 import cors from "cors";
 
 const app = express();
@@ -16,9 +17,11 @@ app.use(
 
 app.use(express.json());
 
-app.use("/", Command);
+app.use("/", Execute);
 
-TrainFactory.initalize().startScanning();
+app.use("/state", State);
+
+DeviceListener.start();
 
 const PORT = 5000 || process.env.PORT;
 

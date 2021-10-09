@@ -1,4 +1,4 @@
-import { IDevice } from "./Devices";
+import { IActiveDeviceData, IDevice } from "../Motor";
 
 class ConnectedDevices {
   private static instance: ConnectedDevices;
@@ -20,9 +20,12 @@ class ConnectedDevices {
     if (!train) return null;
     return train;
   }
+
   public getAllConnections() {
-    let connections: IDevice[] = [];
-    this.connections.forEach((connection) => connections.push(connection));
+    let connections: { key: string; device: IActiveDeviceData }[] = [];
+    this.connections.forEach((connection, key) =>
+      connections.push({ device: connection.getInfo(), key })
+    );
     return connections;
   }
 }
