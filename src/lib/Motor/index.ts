@@ -2,8 +2,6 @@
 // A Device represents physical LEGO POWERED UP hardware.
 // It should implement functions that interact with the hardware.
 
-import Train from "./Train";
-
 export enum COMMANDS {
   ACCELERATE = "ACCELERATE",
   STOP = "STOP",
@@ -122,5 +120,3 @@ export abstract class CustomPoweredUPMotor implements IMotorCommands {
     };
   }
 }
-
-export { Train };
