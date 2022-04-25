@@ -2,17 +2,12 @@ import PoweredUP, { Consts } from "node-poweredup";
 import Color from "./Colors";
 import ConnectedDevices from "./ConnectedDevices";
 import { v4 as uuidv4 } from "uuid";
-import { IDevice, Train } from "../Motor";
 import DeviceFactory from "./DeviceFactory";
-
-type DeviceType = "train" | "coaster";
 
 class DeviceListener {
   private static instance: DeviceListener;
   private poweredUp;
-  private enabled: boolean;
   private constructor() {
-    this.enabled = true;
     this.poweredUp = new PoweredUP();
     return this;
   }
@@ -32,26 +27,31 @@ class DeviceListener {
     return "INVALID";
   }
 
-  private setUp() {
+  private setUpListener() {
     this.poweredUp.on("discover", async (hub) => {
       try {
         console.log(`Discovered ${hub.name}`);
+        // String processing to create a clean device name for client.
         let hubName: string = hub.name;
         let type = this.getType(hubName);
         let deviceName = this.getDeviceName(hubName);
         let deviceID = this.generateId();
-        console.log(`Renaming to ${deviceName} and assigning ID ${deviceID}`);
+        console.log(
+          `Device created as ${deviceName} and has assigned ID ${deviceID}!`
+        );
+        // Connected Devices is a singleton managing all connected PoweredUP motors.
         let connections = ConnectedDevices.initalize();
-        if (!this.enabled)
-          throw `Trains is not allowing any connections at the moment! Rejecting ${hubName}!`;
+        // The PoweredUP hubs should be named properly in order to be added to the connected devices.
         if (connections.getConnection(hub.name))
-          throw `WARNING: Device with Duplicate Name detected. Rejecting ${hubName}!`;
+          throw `WARNING: Device with duplicate name detected. Ignoring duplicate device ${hubName}!`;
         if (type === "INVALID")
-          throw `Device is of type INVALID. Please name device with prefix 'trn_' or 'cst_'. Rejecting ${hubName}!`;
+          throw `Device is of type INVALID. Please name device with prefix 'trn_' or 'cst_'. Ignoring ${hubName}!`;
         await hub.connect();
+        // PoweredUP API Device setup logic
         const motor = await hub.waitForDeviceAtPort("A");
         const led = await hub.waitForDeviceByType(Consts.DeviceType.HUB_LED);
-        led.setColor(new Color().get());
+        const deviceColor = new Color().get();
+        led.setColor(deviceColor);
         connections.addConnection(
           deviceID,
           DeviceFactory.build({
@@ -66,7 +66,7 @@ class DeviceListener {
     return this;
   }
 
-  private startScanning() {
+  private startListeningForPoweredUPDevices() {
     console.log("Scanning for devices...");
     this.poweredUp.scan();
     return this;
@@ -74,7 +74,9 @@ class DeviceListener {
 
   public static start() {
     if (!DeviceListener.instance) {
-      DeviceListener.instance = new DeviceListener().setUp().startScanning();
+      DeviceListener.instance = new DeviceListener()
+        .setUpListener()
+        .startListeningForPoweredUPDevices();
     }
     return DeviceListener.instance;
   }

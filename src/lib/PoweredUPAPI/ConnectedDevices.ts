@@ -1,10 +1,10 @@
-import { IActiveDeviceData, IDevice } from "../Motor";
+import { IActiveDeviceData, IMotorCommands } from "../Motor";
 
 class ConnectedDevices {
   private static instance: ConnectedDevices;
-  private connections: Map<string, IDevice>;
+  private connections: Map<string, IMotorCommands>;
   private constructor() {
-    this.connections = new Map<string, IDevice>();
+    this.connections = new Map<string, IMotorCommands>();
   }
   public static initalize() {
     if (!ConnectedDevices.instance) {
@@ -12,7 +12,7 @@ class ConnectedDevices {
     }
     return ConnectedDevices.instance;
   }
-  public addConnection(key: string, value: IDevice) {
+  public addConnection(key: string, value: IMotorCommands) {
     this.connections.set(key, value);
   }
   public getConnection(key: string) {

@@ -1,6 +1,6 @@
 import express from "express";
 import DeviceListener from "./lib/PoweredUPAPI/DeviceListener";
-import { router as Execute } from "./routes";
+import { router as Execute } from "./routes/execute";
 import { router as State } from "./routes/state";
 import cors from "cors";
 
@@ -23,7 +23,7 @@ app.use("/state", State);
 
 DeviceListener.start();
 
-const PORT = 5000 || process.env.PORT;
+const PORT = 8080 || process.env.PORT;
 
 app.listen(PORT);
 console.log("Application Started Successfully.");

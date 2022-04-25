@@ -1,10 +1,6 @@
-import { IDevice, IDeviceInfo, IDeviceState, IDeviceData } from "./index";
+import { IDeviceData, CustomPoweredUPMotor } from "./index";
 
-class Train implements IDevice {
-  protected motor: any;
-  protected data: IDeviceInfo;
-  protected state: IDeviceState;
-
+class Train extends CustomPoweredUPMotor {
   private scalePower(power: number) {
     let scaled = power;
     if (power > 100) scaled = 100;
@@ -21,6 +17,7 @@ class Train implements IDevice {
   }
 
   public constructor(device: IDeviceData) {
+    super();
     this.motor = device.motor;
 
     this.data = {
