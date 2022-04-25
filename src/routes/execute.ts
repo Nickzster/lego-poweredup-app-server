@@ -3,6 +3,10 @@ import ConnectedDevices from "../lib/PoweredUPAPI/ConnectedDevices";
 
 const router = express.Router();
 
+// POST Execute
+// Params: id -> Device ID To modify
+// Body Syntax: command: ICommandArgs
+
 router.post("/execute/:id", async (req, res) => {
   const { command } = req.body;
   const deviceId = req.params.id;
