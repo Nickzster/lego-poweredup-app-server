@@ -15,11 +15,9 @@ export interface IActiveDeviceData {
 }
 
 interface ICommandArgs {
-  command: {
-    name: "STOP" | "SET_POWER" | "CHANGE_MOTOR_DIRECTION";
-    args?: {
-      adjustment: number;
-    };
+  name: "STOP" | "SET_POWER" | "CHANGE_MOTOR_DIRECTION";
+  args?: {
+    adjustment: number;
   };
 }
 
@@ -64,8 +62,7 @@ export abstract class CustomPoweredUPMotor implements IMotorCommands {
   protected state: IDeviceState;
 
   public execute(commandArgs: ICommandArgs) {
-    const { command } = commandArgs;
-    const { name, args } = command;
+    const { name, args } = commandArgs;
     let updatedDeviceState;
     if (name === COMMANDS.STOP) {
       updatedDeviceState = this.stop();

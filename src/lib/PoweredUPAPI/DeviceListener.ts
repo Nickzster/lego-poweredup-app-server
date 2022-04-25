@@ -46,6 +46,7 @@ class DeviceListener {
             motor: motor,
           })
         );
+        console.log(`Successfully paired device ${hubName} to ID ${deviceID}`);
       } catch (msg) {
         console.log(msg);
       }

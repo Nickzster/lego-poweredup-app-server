@@ -1,4 +1,5 @@
-import { IMotorCommands, IDeviceData, Train } from "../Motor";
+import { IMotorCommands, IDeviceData } from "../Motor";
+import Train from "../Motor/Train";
 
 class DeviceFactory {
   private meta;
