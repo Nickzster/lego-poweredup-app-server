@@ -1,6 +1,6 @@
-import { IDeviceData, CustomPoweredUPMotor } from "./index";
+import { CustomPoweredUPMotor, IDeviceMetadata } from "./index";
 
-class Train extends CustomPoweredUPMotor {
+class TrainMotor extends CustomPoweredUPMotor {
   private scalePower(power: number) {
     let scaled = power;
     if (power > 100) scaled = 100;
@@ -16,23 +16,26 @@ class Train extends CustomPoweredUPMotor {
     return finalAdjustment;
   }
 
-  public constructor(device: IDeviceData) {
+  public constructor(motor: any, deviceMetaData: IDeviceMetadata) {
     super();
-    this.motor = device.motor;
+    this.motor = motor;
 
     this.data = {
-      id: device.meta.id,
-      name: device.meta.name,
-      type: device.meta.type,
+      id: deviceMetaData.id,
+      name: deviceMetaData.name,
+      type: deviceMetaData.type,
     };
+
     this.state = {
       power: 0,
       color: "",
       direction: 1,
     };
+
     this.motor.setPower(this.state.power);
     return this;
   }
+
   public setPower(adjustment: number) {
     let scaledAdjustment =
       this.scaleAdjustment(adjustment) * this.state.direction;
@@ -69,4 +72,4 @@ class Train extends CustomPoweredUPMotor {
   }
 }
 
-export default Train;
+export default TrainMotor;

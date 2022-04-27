@@ -1,8 +1,10 @@
 import PoweredUP, { Consts } from "node-poweredup";
 import Color from "./Colors";
-import ConnectedDevices from "./ConnectedDevices";
+import { addMotor, addRemote } from "./maps";
 import { v4 as uuidv4 } from "uuid";
-import DeviceFactory from "./DeviceFactory";
+import WSServer from "./WSServer";
+import TrainMotor from "./Motor/Train";
+import Remote from "./Remote";
 
 class DeviceListener {
   private static instance: DeviceListener;
@@ -12,12 +14,32 @@ class DeviceListener {
     return this;
   }
 
-  private generateId() {
-    return uuidv4();
-  }
+  private setupLogicalMotor(motor: any, deviceName: string) {
+    const newDeviceID = uuidv4();
+    const newRemoteID = uuidv4();
 
-  private getDeviceName(hubName: string) {
-    return hubName.split("_").pop();
+    const newDevice = new TrainMotor(motor, {
+      id: newDeviceID,
+      name: deviceName,
+      type: "train",
+    });
+
+    const newRemote = new Remote(newRemoteID, newDeviceID);
+
+    addMotor(newDeviceID, newDevice);
+    addRemote(newRemoteID, newRemote);
+
+    WSServer.init().sendToClient({
+      type: "NEW_CONNECTION",
+      id: newRemoteID,
+      payload: {
+        device: newDevice.getDeviceData(),
+      },
+    });
+
+    console.log(
+      `Successfully paired device ${deviceName} to ID ${newDeviceID}`
+    );
   }
 
   private setUpListener() {
@@ -26,27 +48,15 @@ class DeviceListener {
         console.log(`Discovered ${hub.name}`);
         // String processing to create a clean device name for client.
         let hubName: string = hub.name;
-        let deviceName = this.getDeviceName(hubName);
-        let deviceID = this.generateId();
-        // Connected Devices is a singleton managing all connected PoweredUP motors.
-        let connections = ConnectedDevices.initalize();
         // The PoweredUP hubs should be named properly in order to be added to the connected devices.
-        if (connections.getConnection(hub.name))
-          throw `WARNING: Device with duplicate name detected. Ignoring duplicate device ${hubName}!`;
         await hub.connect();
         // PoweredUP API Device setup logic
         const motor = await hub.waitForDeviceAtPort("A");
         const led = await hub.waitForDeviceByType(Consts.DeviceType.HUB_LED);
         const deviceColor = new Color().get();
         led.setColor(deviceColor);
-        connections.addConnection(
-          deviceID,
-          DeviceFactory.build({
-            meta: { id: deviceID, name: deviceName, type: "train" },
-            motor: motor,
-          })
-        );
-        console.log(`Successfully paired device ${hubName} to ID ${deviceID}`);
+        // Train Setup Complete, Need to bind it to a motor.
+        this.setupLogicalMotor(motor, hubName);
       } catch (msg) {
         console.log(msg);
       }

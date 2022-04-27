@@ -1,29 +1,24 @@
-import express from "express";
-import DeviceListener from "./lib/PoweredUPAPI/DeviceListener";
-import { router as Execute } from "./routes/execute";
-import { router as State } from "./routes/state";
-import cors from "cors";
+import { getRemoteByID } from "./lib/maps";
+import DeviceListener from "./lib/DeviceListener";
+import WSServer, { IEgressMessage } from "./lib/WSServer";
 
-const app = express();
-app.use(cors());
-app.use(
-  (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (!!req.get("origin")) {
-      res.setHeader("Access-Control-Allow-Origin", `${req.get("origin")}`);
-    }
-    next();
+const startDeviceListener = () => {
+  DeviceListener.start();
+};
+
+WSServer.init().addClientListener((message, socket) => {
+  if (message.type === "EXECUTE_MOTOR_COMMAND") {
+    console.log("Execute Motor Command!");
+    const remoteID = message.id;
+    const remote = getRemoteByID(remoteID);
+    const newState = remote.execute(message.payload);
+    const response: IEgressMessage = {
+      type: "DEVICE_STATE",
+      id: remoteID,
+      payload: newState,
+    };
+    socket.send(JSON.stringify(response));
   }
-);
+});
 
-app.use(express.json());
-
-app.use("/", Execute);
-
-app.use("/state", State);
-
-DeviceListener.start();
-
-const PORT = 8080 || process.env.PORT;
-
-app.listen(PORT);
-console.log("Application Started Successfully.");
+startDeviceListener();
