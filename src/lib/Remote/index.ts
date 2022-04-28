@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { getMotorByID } from "../maps";
-import { IDeviceState } from "../Motor";
+import { connectedMotors } from "../consts";
+import { IDeviceData, IDeviceState } from "../Motor";
 
 export enum COMMANDS {
   INCREASE_POWER = "INCREASE_POWER",
@@ -21,10 +21,11 @@ interface ICommandSyntax {
 }
 
 export interface IRemote {
-  execute: (command: ICommandSyntax) => IDeviceState[];
-  getId: () => string;
-  addMotor: (key: string) => boolean;
-  removeMotor: (key: string) => boolean;
+  execute: (command: ICommandSyntax) => void; // Executes incoming message
+  getRemoteID: () => string; // Get the ID of this remote.
+  addMotor: (key: string) => boolean; // Add a motor to this remote.
+  moveMotorToNewRemote: (newRemoteKey: string, motorToMove: string) => boolean; // Migrate a motor to a new remote
+  getMotorData: () => IDeviceData[]; // Aggregate all motor data into an array.
 }
 
 class Remote implements IRemote {
@@ -38,25 +39,32 @@ class Remote implements IRemote {
     return this;
   }
 
+  public getMotorData() {
+    return this.motorKeys.map((motorKey) =>
+      connectedMotors.get(motorKey).getDeviceData()
+    );
+  }
+
+  public getRemoteID() {
+    return this.id;
+  }
+
   public addMotor(key: string) {
     this.motorKeys.push(key);
     return true;
   }
 
-  public removeMotor(key: string) {
-    // Do a filter to remove element
+  public moveMotorToNewRemote(newRemoteKey: string, motorToMove: string) {
+    // TODO: Move Motor to new Remote.
     return true;
   }
 
   public execute(command: ICommandSyntax) {
-    const newState = [];
-    console.log("Remote.execute called!");
     this.motorKeys.forEach((motorKey) => {
       console.log("Executing Motor Key: ", motorKey);
       const delta = command.args?.delta || 10;
-      const motor = getMotorByID(motorKey);
+      const motor = connectedMotors.get(motorKey);
       if (!motor) {
-        newState.push({});
         return;
       }
       let newMotorState = motor.getDeviceData().state;
@@ -87,10 +95,7 @@ class Remote implements IRemote {
           break;
         }
       }
-
-      newState.push(newMotorState);
     });
-    return newState;
   }
 
   public getId() {

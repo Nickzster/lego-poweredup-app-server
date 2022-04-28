@@ -1,10 +1,12 @@
 import PoweredUP, { Consts } from "node-poweredup";
 import Color from "./Colors";
-import { addMotor, addRemote } from "./maps";
 import { v4 as uuidv4 } from "uuid";
 import WSServer from "./WSServer";
 import TrainMotor from "./Motor/Train";
 import Remote from "./Remote";
+import { connectedMotors, remotes } from "./consts";
+import EventPipeline from "./EventPipeline";
+import { IMessageForServer } from "./EventPipeline/Message";
 
 class DeviceListener {
   private static instance: DeviceListener;
@@ -26,16 +28,17 @@ class DeviceListener {
 
     const newRemote = new Remote(newRemoteID, newDeviceID);
 
-    addMotor(newDeviceID, newDevice);
-    addRemote(newRemoteID, newRemote);
+    connectedMotors.set(newDeviceID, newDevice);
+    remotes.set(newRemoteID, newRemote);
 
-    WSServer.init().sendToClient({
-      type: "NEW_CONNECTION",
-      id: newRemoteID,
-      payload: {
-        device: newDevice.getDeviceData(),
-      },
-    });
+    const messageForServer: IMessageForServer = {
+      type: "GET_ALL_ACTIVE_REMOTES",
+      remoteID: newRemoteID,
+      motorID: newRemoteID,
+      payload: {},
+    };
+
+    EventPipeline.getInstance().processMessage(messageForServer);
 
     console.log(
       `Successfully paired device ${deviceName} to ID ${newDeviceID}`
