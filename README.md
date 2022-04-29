@@ -33,7 +33,9 @@ After many other prototypes, I came up with the final design. From here on out, 
 ## Concepts
 
 **Motor** - This component (implemented as a simple class) represents the physical hardware, the operations to control the hardware, and its state.
+
 **Remote** - This component (implemented as a simple class too) represents a 'virtual' abstraction, decoupling the operations from the hardware. This is the key to being able to process commands (for example, `increaseMotorPower`, `decreaseMotorPower`, and `brake` operations) to multiple remotes concurrently, and is the key to being able to 'link' the engines together. The main element of this component is an array of motors in which it performs actions on.
+
 **Controller** - This component is a React Component that represents the PoweredUP remote in virtual form.
 
 ## The glue that ties everything together
