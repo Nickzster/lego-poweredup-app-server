@@ -21,10 +21,10 @@ interface ICommandSyntax {
 }
 
 export interface IRemote {
-  execute: (command: ICommandSyntax) => void; // Executes incoming message
+  execute: (command: ICommandSyntax, motorID?: string) => void; // Executes incoming message
   getRemoteID: () => string; // Get the ID of this remote.
   addMotor: (key: string) => boolean; // Add a motor to this remote.
-  moveMotorToNewRemote: (newRemoteKey: string, motorToMove: string) => boolean; // Migrate a motor to a new remote
+  remoteMotorFromRemote: (motorKeyToRemove: string) => void; // Migrate a motor to a new remote
   getMotorData: () => IDeviceData[]; // Aggregate all motor data into an array.
 }
 
@@ -54,22 +54,23 @@ class Remote implements IRemote {
     return true;
   }
 
-  public moveMotorToNewRemote(newRemoteKey: string, motorToMove: string) {
-    // TODO: Move Motor to new Remote.
-    return true;
+  public remoteMotorFromRemote(motorKeyToRemove: string) {
+    this.motorKeys = this.motorKeys.filter(
+      (motorKey) => motorKey !== motorKeyToRemove
+    );
   }
 
-  public execute(command: ICommandSyntax) {
+  public execute(command: ICommandSyntax, motorID: string = "") {
     this.motorKeys.forEach((motorKey) => {
-      console.log("Executing Motor Key: ", motorKey);
       const delta = command.args?.delta || 10;
       const motor = connectedMotors.get(motorKey);
       if (!motor) {
         return;
       }
-      let newMotorState = motor.getDeviceData().state;
+      let newMotorState;
 
       console.log(`RemoteInstance: Executing ${command.name} with ${delta}`);
+      console.log("...and motorID: ", motorID);
       switch (command.name) {
         case COMMANDS.INCREASE_POWER: {
           motor.setPower(delta);
@@ -90,8 +91,11 @@ class Remote implements IRemote {
         }
 
         case COMMANDS.CHANGE_MOTOR_DIRECTION: {
-          motor.changeDirection();
-          newMotorState = motor.getDeviceData().state;
+          console.log(`${motorKey} === ${motorID}`, motorKey === motorID);
+          if (motorKey === motorID) {
+            motor.changeDirection();
+            newMotorState = motor.getDeviceData().state;
+          }
           break;
         }
       }

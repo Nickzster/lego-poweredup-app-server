@@ -27,6 +27,12 @@ class CustomMap<T> {
     }
     return items;
   }
+
+  public aggregateKeys(): string[] {
+    const keys: string[] = [];
+    for (let key in this.map) keys.push(key);
+    return keys;
+  }
 }
 
 export default CustomMap;

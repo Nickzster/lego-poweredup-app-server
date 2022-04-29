@@ -5,7 +5,7 @@ import { IDeviceData } from "../Motor";
 type ClientEvents =
   | "EXECUTE_MOTOR_COMMAND"
   | "GET_ALL_ACTIVE_REMOTES"
-  | "ASSIGN_MOTOR_TO_REMOTE";
+  | "ROTATE_MOTOR_TO_NEW_REMOTE";
 
 type Error = "ERROR";
 

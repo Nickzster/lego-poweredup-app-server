@@ -1,6 +1,6 @@
 import WSServer from "../WSServer";
 import { IHandler } from "./handlers";
-import AssignMotorToRemoteHandler from "./handlers/AssignMotorToRemote";
+import RotateMotorToNewRemoteHandler from "./handlers/RotateMotorToNewRemote";
 import ExecuteMotorCommandHandler from "./handlers/ExecuteMotorCommand";
 import GetAllActiveRemotesHandler from "./handlers/GetAllActiveRemotes";
 import { IMessageForClient, IMessageForServer } from "./Message";
@@ -37,15 +37,15 @@ class EventPipeline {
   }
 
   private setupChain() {
-    const assignMotorToRemoteHandler = new AssignMotorToRemoteHandler();
+    const rotateMotorToNewRemote = new RotateMotorToNewRemoteHandler();
     const executeMotorCommandHandler = new ExecuteMotorCommandHandler();
     const getAllActiveRemotesHandler = new GetAllActiveRemotesHandler();
 
-    assignMotorToRemoteHandler
+    rotateMotorToNewRemote
       .setNext(executeMotorCommandHandler)
       .setNext(getAllActiveRemotesHandler);
 
-    this.firstElementInChain = assignMotorToRemoteHandler;
+    this.firstElementInChain = rotateMotorToNewRemote;
   }
 }
 
