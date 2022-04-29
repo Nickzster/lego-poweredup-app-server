@@ -25,12 +25,14 @@ export interface IMotorCommands {
   ) => IDeviceState;
   changeDirection: () => IDeviceState;
   getDeviceData: () => IDeviceData;
+  setLEDToColor: (color: number) => IDeviceState;
 }
 
 export abstract class CustomPoweredUPMotor implements IMotorCommands {
   protected motor: any;
   protected data: IDeviceMetadata;
   protected state: IDeviceState;
+  protected led: any;
 
   public setPower(adjustment: number) {
     return this.state;
@@ -45,6 +47,11 @@ export abstract class CustomPoweredUPMotor implements IMotorCommands {
   }
 
   public changeDirection() {
+    return this.state;
+  }
+
+  public setLEDToColor(color: number) {
+    this.led.setColor(color);
     return this.state;
   }
 

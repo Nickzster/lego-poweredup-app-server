@@ -29,6 +29,7 @@ export const messageForClientFactory = (): IMessageForClient => ({
   remotes: remotes.aggregate().map((remote) => ({
     key: remote.key,
     value: remote.value.getMotorData(),
+    color: remote.value.getRemoteColor(),
   })),
 });
 

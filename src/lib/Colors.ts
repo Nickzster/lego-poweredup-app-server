@@ -1,6 +1,6 @@
 import { Consts } from "node-poweredup";
 
-const COLORS = [
+export const COLORS = [
   Consts.Color.BLUE,
   Consts.Color.GREEN,
   Consts.Color.PINK,

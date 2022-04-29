@@ -1,5 +1,5 @@
 import PoweredUP, { Consts } from "node-poweredup";
-import Color from "./Colors";
+import Color, { COLORS } from "./Colors";
 import { v4 as uuidv4 } from "uuid";
 import WSServer from "./WSServer";
 import TrainMotor from "./Motor/Train";
@@ -16,20 +16,26 @@ class DeviceListener {
     return this;
   }
 
-  private setupLogicalMotor(motor: any, deviceName: string) {
+  private setupLogicalMotor(motor: any, deviceName: string, led: any) {
     const newDeviceID = uuidv4();
     const newRemoteID = uuidv4();
 
-    const newDevice = new TrainMotor(motor, {
-      id: newDeviceID,
-      name: deviceName,
-      type: "train",
-    });
+    const newDevice = new TrainMotor(
+      motor,
+      {
+        id: newDeviceID,
+        name: deviceName,
+        type: "train",
+      },
+      led
+    );
 
-    const newRemote = new Remote(newRemoteID, newDeviceID);
+    const newRemote = new Remote(newRemoteID);
 
     connectedMotors.set(newDeviceID, newDevice);
     remotes.set(newRemoteID, newRemote);
+
+    newRemote.addMotor(newDeviceID);
 
     const messageForServer: IMessageForServer = {
       type: "GET_ALL_ACTIVE_REMOTES",
@@ -56,10 +62,9 @@ class DeviceListener {
         // PoweredUP API Device setup logic
         const motor = await hub.waitForDeviceAtPort("A");
         const led = await hub.waitForDeviceByType(Consts.DeviceType.HUB_LED);
-        const deviceColor = new Color().get();
-        led.setColor(deviceColor);
+
         // Train Setup Complete, Need to bind it to a motor.
-        this.setupLogicalMotor(motor, hubName);
+        this.setupLogicalMotor(motor, hubName, led);
       } catch (msg) {
         console.log(msg);
       }

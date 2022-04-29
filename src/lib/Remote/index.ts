@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import Color from "../Colors";
 import { connectedMotors } from "../consts";
 import { IDeviceData, IDeviceState } from "../Motor";
 
@@ -26,15 +27,29 @@ export interface IRemote {
   addMotor: (key: string) => boolean; // Add a motor to this remote.
   remoteMotorFromRemote: (motorKeyToRemove: string) => void; // Migrate a motor to a new remote
   getMotorData: () => IDeviceData[]; // Aggregate all motor data into an array.
+  getRemoteColor: () => number; //Return the color of the remote.
 }
 
 class Remote implements IRemote {
   private motorKeys: string[];
   private id: string;
+  private color: number;
+
+  private changeMotorColor(motorID: string) {
+    let motor = connectedMotors.get(motorID);
+    console.log("MOTOR", motor);
+    motor.setLEDToColor(this.color);
+  }
+
+  public getRemoteColor() {
+    return this.color;
+  }
 
   public constructor(newRemoteID: string = uuidv4(), newMotorID?: string) {
     this.motorKeys = [];
+    this.color = new Color().get();
     if (newMotorID) this.motorKeys.push(newMotorID);
+
     this.id = newRemoteID;
     return this;
   }
@@ -51,6 +66,7 @@ class Remote implements IRemote {
 
   public addMotor(key: string) {
     this.motorKeys.push(key);
+    this.changeMotorColor(key);
     return true;
   }
 

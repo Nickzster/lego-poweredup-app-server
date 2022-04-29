@@ -16,7 +16,7 @@ class TrainMotor extends CustomPoweredUPMotor {
     return finalAdjustment;
   }
 
-  public constructor(motor: any, deviceMetaData: IDeviceMetadata) {
+  public constructor(motor: any, deviceMetaData: IDeviceMetadata, led: any) {
     super();
     this.motor = motor;
 
@@ -33,6 +33,8 @@ class TrainMotor extends CustomPoweredUPMotor {
     };
 
     this.motor.setPower(this.state.power);
+
+    this.led = led;
     return this;
   }
 
@@ -58,7 +60,6 @@ class TrainMotor extends CustomPoweredUPMotor {
   }
 
   public changeDirection() {
-    //TODO: Need to get this working in reverse state.
     this.state.direction *= -1;
     this.stop();
     return this.state;
