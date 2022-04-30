@@ -55,6 +55,8 @@ The `EventPipeline` uses the [chain of responsibility](https://refactoring.guru/
 
 - Currently, the state of all motors and all remotes are stored using a hash table (`CustomMap`). I feel that a structural pattern could be better used here to extend the capabilties of these components.
 - The UX could be better, but it does a really good job at representing the state of each motor, and using controllers to interact with the motors.
+- The connection connectivity is a little limited. It would be nice to have disconnect logic so that the server can keep running reliably.
+- Reconsider the client-server architecture and build it as a single app for easier on-boarding
 
 ## Conclusion
 
